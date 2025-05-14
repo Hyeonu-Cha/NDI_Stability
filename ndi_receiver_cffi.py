@@ -11,6 +11,8 @@ class NDIReceiverCFFI:
         self.finder = lib.NDIlib_find_create_v2(find_settings)
         self.sources = []
         self.receiver = ffi.NULL
+        self.frame = None
+        self.audio_frame = None  # will be declared inline to avoid undeclared C type error
 
     def list_sources(self):
         lib.NDIlib_find_wait_for_sources(self.finder, 2000)
@@ -43,7 +45,9 @@ class NDIReceiverCFFI:
         if not self.receiver:
             return "Not connected"
 
-        result = lib.NDIlib_recv_capture_v2(self.receiver, self.frame, ffi.NULL, ffi.NULL, 1000)
+        self.audio_frame = ffi.new("struct { int sample_rate; int no_channels; int no_samples; int timecode; void* p_data; char* p_metadata; long long timestamp; }*")
+
+        result = lib.NDIlib_recv_capture_v2(self.receiver, self.frame, self.audio_frame, ffi.NULL, 1000)
         if result == 1:
             xres = self.frame.xres
             yres = self.frame.yres
@@ -52,9 +56,17 @@ class NDIReceiverCFFI:
             fourcc = decode_fourcc(self.frame.FourCC)
             fps = round(num / den, 2)
 
+            audio_channels = self.audio_frame.no_channels
+            sample_rate = self.audio_frame.sample_rate
+
             lib.NDIlib_recv_free_video_v2(self.receiver, self.frame)
-            return f"{xres}x{yres} @ {fps}fps [{fourcc}]"
+            return f"{xres}x{yres} @ {fps}fps [{fourcc}] | Audio: {audio_channels}ch @ {sample_rate}Hz"
         return "Waiting for video..."
+
+    def get_last_frame_size(self):
+        if self.frame and self.frame.line_stride_in_bytes > 0:
+            return self.frame.line_stride_in_bytes * self.frame.yres
+        return 0
 
     def is_connected(self):
         return self.receiver != ffi.NULL
