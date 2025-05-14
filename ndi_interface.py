@@ -15,7 +15,7 @@ ffi.cdef("""
         const char* p_groups;
         const char* p_extra_ips;
     } NDIlib_find_create_t;
-
+    
     typedef struct {
         int xres, yres;
         int FourCC;
