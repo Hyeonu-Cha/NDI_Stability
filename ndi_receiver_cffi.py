@@ -52,9 +52,9 @@ class NDIReceiverCFFI:
             den = self.frame.frame_rate_D or 1
             fourcc = decode_fourcc(self.frame.FourCC)
             fps = round(num / den, 2)
-
             lib.NDIlib_recv_free_video_v2(self.receiver, self.frame)
             return f"{xres}x{yres} @ {fps}fps [{fourcc}]"
+
         return "Waiting for video..."
 
     def get_last_frame_size(self):

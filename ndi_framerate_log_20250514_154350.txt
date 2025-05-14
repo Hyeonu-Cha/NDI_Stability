@@ -1,0 +1,2 @@
+NDI Frame Rate and Bitrate Report
+15:43:53: 30.0 fps, Codec: UYVY, Bitrate: 5351034.49 Mbps

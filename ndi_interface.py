@@ -3,7 +3,6 @@ import os
 
 ffi = FFI()
 
-# C declarations from the NDI SDK we need
 ffi.cdef("""
     typedef struct {
         const char* p_ndi_name;
@@ -15,7 +14,7 @@ ffi.cdef("""
         const char* p_groups;
         const char* p_extra_ips;
     } NDIlib_find_create_t;
-    
+
     typedef struct {
         int xres, yres;
         int FourCC;
@@ -46,22 +45,20 @@ ffi.cdef("""
     void NDIlib_destroy(void);
 """)
 
-# Load libndi.dylib
 ndi_path = "/Library/NDI SDK for Apple/lib/macOS/libndi.dylib"
 if not os.path.exists(ndi_path):
     raise RuntimeError("NDI library not found at expected location")
 
 lib = ffi.dlopen(ndi_path)
 
-# Convenience: convert FourCC to string
 def decode_fourcc(fourcc):
     chars = bytes([
         fourcc & 0xFF,
-        (fourcc >> 8) & 0xFF,        (fourcc >> 16) & 0xFF,
+        (fourcc >> 8) & 0xFF,
+        (fourcc >> 16) & 0xFF,
         (fourcc >> 24) & 0xFF,
-        0  # Null-terminator
+        0
     ])
     return ffi.string(ffi.new("char[]", chars)).decode("utf-8", errors="ignore")
-
 
 __all__ = ["ffi", "lib", "decode_fourcc"]
