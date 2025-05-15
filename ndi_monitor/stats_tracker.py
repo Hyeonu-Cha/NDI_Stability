@@ -13,7 +13,8 @@ class StatsTracker:
         self.codecs = []
         self.bitrates = []
         self.thread = None
-        self.log_file = f"ndi_framerate_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        #self.log_file = f"ndi_framerate_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        self.log_file = f"logs/ndi_framerate_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 
     def start(self):
         if not self.running:
@@ -92,7 +93,7 @@ class StatsTracker:
         plt.grid(True)
 
         plt.tight_layout()
-        plt.savefig("ndi_framerate_report.png")
+        plt.savefig("logs/ndi_framerate_report.png")
         plt.close()
 
     def _write_log(self):

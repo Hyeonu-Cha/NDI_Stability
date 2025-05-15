@@ -1,9 +1,10 @@
 import tkinter as tk
 from tkinter import ttk
 #from ndi_receiver import NDIReceiver
-from ndi_receiver_cffi import NDIReceiverCFFI as NDIReceiver
+#from ndi_receiver_cffi import NDIReceiverCFFI 
+from .ndi_receiver_cffi import NDIReceiverCFFI as NDIReceiver
 
-from stats_tracker import StatsTracker
+from .stats_tracker import StatsTracker
 
 class NDIMonitorApp:
     def __init__(self):

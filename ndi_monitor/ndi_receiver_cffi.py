@@ -1,4 +1,4 @@
-from ndi_interface import ffi, lib, decode_fourcc
+from .ndi_interface import ffi, lib, decode_fourcc
 import time
 
 class NDIReceiverCFFI:
