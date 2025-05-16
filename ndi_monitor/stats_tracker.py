@@ -13,7 +13,7 @@ class StatsTracker:
         self.codecs = []
         self.bitrates = []
         self.thread = None
-        #self.log_file = f"ndi_framerate_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
+        self.start_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         self.log_file = f"logs/ndi_framerate_log_{datetime.now().strftime('%Y%m%d_%H%M%S')}.txt"
 
     def start(self):
@@ -34,20 +34,18 @@ class StatsTracker:
     def _run(self):
         while self.running:
             total_bytes = 0
-            timestamp = datetime.now().strftime("%H:%M:%S")
             frame_rate = 0
             codec = "unknown"
+            timestamp_label = self.receiver.get_elapsed_time_label()
 
             for _ in range(10):
                 info = self.receiver.get_frame_info()
-                size = self.receiver.get_last_frame_size()  # New method you must implement
+                size = self.receiver.get_last_frame_size()
                 total_bytes += size
 
                 try:
                     if "@" in info and "[" in info and "]" in info:
-                        parts = info.split("@", 1)
-                        after_at = parts[1] if len(parts) > 1 else ""
-
+                        before_at, after_at = info.split("@", 1)
                         fps_part, codec_part = after_at.split("[")
                         codec = codec_part.strip("] ")
                         if "fps" in fps_part:
@@ -62,14 +60,14 @@ class StatsTracker:
 
                 time.sleep(1)
 
-            bitrate_mbps = round((total_bytes * 8) / 10_000_000, 2)  # bits/sec → Mbps
+            bitrate_mbps = round((total_bytes * 8) / 10_000_000, 2)
 
-            self.timestamps.append(timestamp)
+            self.timestamps.append(timestamp_label)
             self.frame_rates.append(frame_rate)
             self.codecs.append(codec)
             self.bitrates.append(bitrate_mbps)
 
-            print(f"[Report] {timestamp}: Frame Rate = {frame_rate} fps, Codec = {codec}, Bitrate = {bitrate_mbps} Mbps")
+            print(f"[Report] {timestamp_label}: Frame Rate = {frame_rate} fps, Codec = {codec}, Bitrate = {bitrate_mbps} Mbps")
 
     def _generate_graph(self):
         if len(self.timestamps) < 2:
@@ -80,7 +78,7 @@ class StatsTracker:
         plt.figure(figsize=(10, 5))
         plt.subplot(2, 1, 1)
         plt.plot(self.timestamps, self.frame_rates, marker='o')
-        plt.title(f"NDI Frame Rate Stability\nCodec: {last_codec}")
+        plt.title(f"NDI Frame Rate Stability\nCodec: {last_codec} | Start: {self.start_time}")
         plt.ylabel("FPS")
         plt.xticks(rotation=45)
         plt.grid(True)
@@ -88,7 +86,7 @@ class StatsTracker:
         plt.subplot(2, 1, 2)
         plt.plot(self.timestamps, self.bitrates, marker='s', color='orange')
         plt.ylabel("Bitrate (Mbps)")
-        plt.xlabel("Time")
+        plt.xlabel("Duration")
         plt.xticks(rotation=45)
         plt.grid(True)
 
@@ -98,6 +96,6 @@ class StatsTracker:
 
     def _write_log(self):
         with open(self.log_file, "w") as f:
-            f.write("NDI Frame Rate and Bitrate Report\n")
+            f.write(f"NDI Frame Rate and Bitrate Report\nStart Time: {self.start_time}\n\n")
             for ts, fr, cc, br in zip(self.timestamps, self.frame_rates, self.codecs, self.bitrates):
                 f.write(f"{ts}: {fr} fps, Codec: {cc}, Bitrate: {br} Mbps\n")

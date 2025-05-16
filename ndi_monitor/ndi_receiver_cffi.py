@@ -17,6 +17,9 @@ class NDIReceiverCFFI:
         # Ensure logs directory exists
         os.makedirs("logs", exist_ok=True)
 
+        # Track start time for relative timestamps
+        self.start_time = time.time()
+
     def list_sources(self):
         lib.NDIlib_find_wait_for_sources(self.finder, 2000)
         count_ptr = ffi.new("uint32_t*")
@@ -43,6 +46,7 @@ class NDIReceiverCFFI:
         lib.NDIlib_recv_connect(self.receiver, source)
 
         self.frame = ffi.new("NDIlib_video_frame_v2_t*")
+        self.start_time = time.time()
 
     def get_frame_info(self):
         if not self.receiver:
@@ -65,6 +69,9 @@ class NDIReceiverCFFI:
         if self.frame and self.frame.line_stride_in_bytes > 0:
             return self.frame.line_stride_in_bytes * self.frame.yres
         return 0
+
+    def get_elapsed_time_label(self):
+        return int(time.time() - self.start_time)
 
     def is_connected(self):
         return self.receiver != ffi.NULL
