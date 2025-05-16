@@ -1,5 +1,6 @@
 from .ndi_interface import ffi, lib, decode_fourcc
 import time
+import os
 
 class NDIReceiverCFFI:
     def __init__(self):
@@ -12,6 +13,9 @@ class NDIReceiverCFFI:
         self.sources = []
         self.receiver = ffi.NULL
         self.frame = None
+
+        # Ensure logs directory exists
+        os.makedirs("logs", exist_ok=True)
 
     def list_sources(self):
         lib.NDIlib_find_wait_for_sources(self.finder, 2000)
