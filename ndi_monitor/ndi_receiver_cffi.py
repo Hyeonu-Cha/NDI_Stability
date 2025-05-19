@@ -7,17 +7,13 @@ class NDIReceiverCFFI:
         if not lib.NDIlib_initialize():
             raise RuntimeError("NDI initialization failed")
 
-        # Setup source finder
         find_settings = ffi.new("NDIlib_find_create_t*", [True, ffi.NULL, ffi.NULL])
         self.finder = lib.NDIlib_find_create_v2(find_settings)
         self.sources = []
         self.receiver = ffi.NULL
-        self.frame = None
+        self.frame = ffi.new("NDIlib_video_frame_v2_t*")
 
-        # Ensure logs directory exists
         os.makedirs("logs", exist_ok=True)
-
-        # Track start time for relative timestamps
         self.start_time = time.time()
 
     def list_sources(self):
@@ -29,11 +25,7 @@ class NDIReceiverCFFI:
             s = src_ptr[i]
             name = ffi.string(s.p_ndi_name).decode() if s.p_ndi_name else '<unnamed>'
             url = ffi.string(s.p_url_address).decode() if s.p_url_address else '<no url>'
-            self.sources.append({
-                'name': name,
-                'url': url,
-                'struct': s
-            })
+            self.sources.append({'name': name, 'url': url, 'struct': s})
         return self.sources
 
     def connect(self, source_dict):
@@ -45,7 +37,6 @@ class NDIReceiverCFFI:
         self.receiver = lib.NDIlib_recv_create_v2()
         lib.NDIlib_recv_connect(self.receiver, source)
 
-        self.frame = ffi.new("NDIlib_video_frame_v2_t*")
         self.start_time = time.time()
 
     def get_frame_info(self):
@@ -53,6 +44,7 @@ class NDIReceiverCFFI:
             return "Not connected"
 
         result = lib.NDIlib_recv_capture_v2(self.receiver, self.frame, ffi.NULL, ffi.NULL, 1000)
+
         if result == 1:
             xres = self.frame.xres
             yres = self.frame.yres
@@ -71,7 +63,7 @@ class NDIReceiverCFFI:
         return 0
 
     def get_elapsed_time_label(self):
-        return int(time.time() - self.start_time)
+        return str(int(time.time() - self.start_time)) + "s"
 
     def is_connected(self):
         return self.receiver != ffi.NULL
