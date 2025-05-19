@@ -30,7 +30,7 @@ class NDIMonitorApp:
         connect_btn = ttk.Button(btn_frame, text="Connect", command=self.connect_source)
         connect_btn.pack(side="left", padx=5)
 
-        stop_btn = ttk.Button(btn_frame, text="Stop", command=self.stop_monitoring)
+        stop_btn = ttk.Button(btn_frame, text="Export Reports", command=self.stop_monitoring)
         stop_btn.pack(side="left", padx=5)
 
         exit_btn = ttk.Button(btn_frame, text="Exit", command=self.exit_app)
