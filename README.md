@@ -1,43 +1,55 @@
 # NDI Stability Monitor
 
-This project is a simple GUI tool to monitor and track NDI video stream stability.
+This tool allows you to detect, connect to, and monitor NDI video sources (TCP or Multicast) in real time. It displays and reports frame rate, codec, bitrate, and connection mode. Reports are generated every 10 seconds in both `.txt` and `.png` formats.
 
 ## Features
-- Lists all available NDI sources on the local network
-- Connect to a source and display live resolution, frame rate, and codec
-- Track stream statistics (frame rate, bitrate) over time
-- Export results as `.txt` logs and `.png` graphs
+- Live GUI to select NDI source
+- TCP and Multicast detection with fallback
+- Displays real-time resolution, FPS, codec, and bitrate
+- Auto-generates performance logs and bandwidth charts
+
+## Folder Structure
+```
+TestNDI/
+├── main.py               # Entry point
+├── logs/                 # Contains auto-generated .txt and .png logs
+├── ndi_monitor/
+│   ├── __init__.py
+│   ├── gui.py            # GUI logic (Tkinter)
+│   ├── ndi_receiver_cffi.py  # NDI connection and frame handling
+│   └── stats_tracker.py  # Tracks and graphs stream stats
+├── ndi_interface.py      # CFFI bindings to NDI SDK
+├── requirements.txt      # Python dependencies
+└── README.md             # You are here
+```
 
 ## Installation
+### Requirements
+- Python 3.9–3.13
+- NDI SDK installed and added to system path (macOS: `/Library/NDI SDK for Apple`)
 
-1. **Install the NDI SDK for macOS**  
-   Download from: https://www.ndi.tv/sdk/  
-   Make sure it installs to `/Library/NDI SDK for Apple/`.
+### Setup
+```bash
+# Clone and enter project
+cd TestNDI
 
-2. **Clone this repository**:
-   ```bash
-   git clone https://github.com/HyeonuCha/NDI_Stability.git
-   cd NDI_Stability
-
-3. **Create and activate a virtual environment:**:
+# Create virtual environment
 python3 -m venv .venv
 source .venv/bin/activate
-4. **Install required Python packages:**:
 
+# Install dependencies
 pip install -r requirements.txt
+```
 
-Running the App
+## Running
+```bash
 python main.py
+```
+Select an NDI source from the list. The app will begin monitoring and auto-export logs every 10 seconds.
 
+## Notes
+- If multicast is not supported, the app will automatically fall back to TCP.
+- Ensure your firewall/network allows NDI traffic.
 
-Output
-PNG graph: logs/ndi_framerate_report.png
-
-Text log: logs/ndi_framerate_log_<timestamp>.txt
-
-Notes
-This tool is built for macOS and expects the NDI SDK in /Library/NDI SDK for Apple/
-
-GUI includes a dropdown to choose an NDI source and an Export button to stop tracking and save reports
-
-Audio tracking is currently disabled for better stability
+## License
+MIT
